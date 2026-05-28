@@ -31,9 +31,9 @@ export default function Home() {
       initials: 'MS',
       bio: 'I have been shaping clay for over 20 years, drawing inspiration from ancient Zapotec traditions. Each bowl I throw carries the memory of my grandmother\'s hands.',
       products: [
-        { name: 'Hand-Thrown Clay Bowl', price: '$48.00', icon: '🏺' },
-        { name: 'Terracotta Vase', price: '$72.00', icon: '🏺' },
-        { name: 'Ceramic Mug Set', price: '$55.00', icon: '🏺' },
+        { id: '1', name: 'Hand-Thrown Clay Bowl', price: '$48.00', icon: '🏺' },
+        { id: '2', name: 'Terracotta Vase', price: '$72.00', icon: '🏺' },
+        { id: '3', name: 'Ceramic Mug Set', price: '$55.00', icon: '🏺' },
       ],
     },
     {
@@ -43,9 +43,9 @@ export default function Home() {
       initials: 'JA',
       bio: 'Every piece of jewelry I create starts with a story — a love letter, a milestone, a memory. I hand-forge each item using traditional silversmithing techniques.',
       products: [
-        { name: 'Silver Leaf Earrings', price: '$65.00', icon: '💍' },
-        { name: 'Hammered Ring', price: '$90.00', icon: '💍' },
-        { name: 'Chain Necklace', price: '$110.00', icon: '💍' },
+        { id: '4', name: 'Silver Leaf Earrings', price: '$65.00', icon: '💍' },
+        { id: '5', name: 'Hammered Ring', price: '$90.00', icon: '💍' },
+        { id: '6', name: 'Chain Necklace', price: '$110.00', icon: '💍' },
       ],
     },
     {
@@ -55,9 +55,9 @@ export default function Home() {
       initials: 'AT',
       bio: 'Weaving is how my family has communicated for generations. I use natural dyes and traditional backstrap looms to create textiles that carry our cultural identity forward.',
       products: [
-        { name: 'Woven Wall Hanging', price: '$120.00', icon: '🧵' },
-        { name: 'Handwoven Tote', price: '$68.00', icon: '🧵' },
-        { name: 'Table Runner', price: '$45.00', icon: '🧵' },
+        { id: '7', name: 'Woven Wall Hanging', price: '$120.00', icon: '🧵' },
+        { id: '8', name: 'Handwoven Tote', price: '$68.00', icon: '🧵' },
+        { id: '9', name: 'Table Runner', price: '$45.00', icon: '🧵' },
       ],
     },
   ];
@@ -208,7 +208,7 @@ export default function Home() {
             {i % 2 !== 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {artisan.products.map((product, j) => (
-                  <Link key={j} href="/products" style={{
+                  <Link key={j} href={`/product/${product.id}`} style={{
                     backgroundColor: j === 0 ? colors.backgroundWarm : colors.background,
                     borderRadius: '12px',
                     padding: '1.5rem',
@@ -260,7 +260,7 @@ export default function Home() {
                 "{artisan.bio}"
               </blockquote>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <Link href="/artisans" style={{
+                <Link href={`/artisan/${artisan.name.toLowerCase().replace(' ', '-')}`} style={{
                   backgroundColor: colors.primary,
                   color: colors.background,
                   padding: '0.75rem 1.5rem',
@@ -288,7 +288,7 @@ export default function Home() {
             {i % 2 === 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {artisan.products.map((product, j) => (
-                  <Link key={j} href="/products" style={{
+                  <Link key={j} href={`/product/${product.id}`} style={{
                     backgroundColor: j === 0 ? colors.backgroundWarm : colors.background,
                     borderRadius: '12px',
                     padding: '1.5rem',
