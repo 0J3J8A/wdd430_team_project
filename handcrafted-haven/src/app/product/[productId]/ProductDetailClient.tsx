@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/contexts/CartContext";
 
 // Type definitions for product data
 type ProductImage = {
@@ -171,6 +172,7 @@ type ProductDetailClientProps = {
 
 export default function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const router = useRouter();
+  const { addToCart } = useCart(); // ADDED: Cart context hook
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -209,39 +211,30 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
     fetchProduct();
   }, [productId]);
 
-  // Handle add to cart
-  const handleAddToCart = async () => {
+  // Handle add to cart - MODIFIED to use CartContext
+  const handleAddToCart = () => {
     if (!product) return;
 
     setAddingToCart(true);
     setAddToCartMessage(null);
 
-    try {
-      // Replace with your actual cart API endpoint
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: 1,
-        }),
-      });
+    // Create cart item from product data
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      currency: product.currency,
+      quantity: 1,
+      imageUrl: product.images.find(img => img.isMain)?.url || product.images[0]?.url || "",
+      artisanName: product.artisan.name,
+    };
 
-      if (!response.ok) {
-        throw new Error("Failed to add to cart");
-      }
-
-      setAddToCartMessage("Added to cart successfully!");
-      setTimeout(() => setAddToCartMessage(null), 3000);
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      setAddToCartMessage("Failed to add to cart. Please try again.");
-      setTimeout(() => setAddToCartMessage(null), 3000);
-    } finally {
-      setAddingToCart(false);
-    }
+    // Add to cart using context
+    addToCart(cartItem, 1);
+    
+    setAddToCartMessage("Added to cart successfully!");
+    setTimeout(() => setAddToCartMessage(null), 3000);
+    setAddingToCart(false);
   };
 
   // Loading state

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import CartIcon from "@/components/CartIcon";
 
 const typography = {
   h1: { fontFamily: "'Georgia', serif", fontSize: '3.5rem', fontWeight: 500, color: '#5C4033' },
@@ -100,6 +101,14 @@ export default function Home() {
               textDecoration: 'none',
             }}>{item}</Link>
           ))}
+
+          {/*CartIcon*/}
+          <CartIcon style={{
+            ...typography.subheading,
+            color: colors.secondary,
+            textDecoration: 'none',
+          }} />
+
           <Link href="/login" style={{
             backgroundColor: colors.primary,
             color: colors.background,
