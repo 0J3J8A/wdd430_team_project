@@ -1,22 +1,37 @@
-// src/app/layout.tsx
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { CartProvider } from "@/contexts/CartContext";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next';
+import { Playfair_Display, Source_Sans_3 } from 'next/font/google';
+import { CartProvider } from '@/contexts/CartContext';
+import './globals.css';
+import './responsive.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+  style: ['normal', 'italic'],
+  weight: ['400', '600'],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const sourceSans = Source_Sans_3({
+  subsets: ['latin'],
+  variable: '--font-source-sans',
+  display: 'swap',
+  weight: ['300', '400', '500', '600'],
 });
 
 export const metadata: Metadata = {
-  title: "Handcrafted Haven",
-  description: "A marketplace connecting artisans with shoppers",
+  title: {
+    template: '%s | Handcrafted Haven',
+    default: 'Handcrafted Haven — Artisan Marketplace',
+  },
+  description:
+    'Discover one-of-a-kind handcrafted pieces from independent artisans around the world. Every purchase supports a maker and tells a story.',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#5C4033',
 };
 
 export default function RootLayout({
@@ -25,11 +40,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${playfair.variable} ${sourceSans.variable}`}>
+      <body>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <CartProvider>
           {children}
         </CartProvider>
