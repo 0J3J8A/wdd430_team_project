@@ -1,4 +1,6 @@
 // src/app/page.tsx
+'use client';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import NavBar from './_components/NavBar';
 
@@ -23,7 +25,63 @@ const colors = {
   cream:          '#C4A882',
 };
 
+const MOCK_PRODUCTS = [
+  { id: 1, name: 'Handcrafted Clay Vase', category: 'Ceramics', price: 44.99 },
+  { id: 2, name: 'Porcelain Tea Set', category: 'Ceramics', price: 79.95 },
+  { id: 3, name: 'Ceramic Planter Pot', category: 'Ceramics', price: 34.50 },
+  { id: 4, name: 'Stoneware Dinner Plate', category: 'Ceramics', price: 24.99 },
+  { id: 5, name: 'Glazed Coffee Mug', category: 'Ceramics', price: 19.95 },
+
+  { id: 6, name: 'Woven Cotton Blanket', category: 'Textiles', price: 64.50 },
+  { id: 7, name: 'Linen Table Runner', category: 'Textiles', price: 27.99 },
+  { id: 8, name: 'Handwoven Wall Hanging', category: 'Textiles', price: 54.95 },
+  { id: 9, name: 'Organic Cotton Scarf', category: 'Textiles', price: 32.50 },
+  { id: 10, name: 'Decorative Cushion Cover', category: 'Textiles', price: 22.99 },
+
+  { id: 11, name: 'Silver Leaf Necklace', category: 'Jewelry', price: 89.99 },
+  { id: 12, name: 'Pearl Drop Earrings', category: 'Jewelry', price: 59.50 },
+  { id: 13, name: 'Gold Plated Bracelet', category: 'Jewelry', price: 74.95 },
+  { id: 14, name: 'Gemstone Ring', category: 'Jewelry', price: 109.99 },
+  { id: 15, name: 'Minimalist Pendant', category: 'Jewelry', price: 49.50 },
+
+  { id: 16, name: 'Oak Serving Board', category: 'Woodwork', price: 42.75 },
+  { id: 17, name: 'Hand-Carved Jewelry Box', category: 'Woodwork', price: 87.99 },
+  { id: 18, name: 'Walnut Picture Frame', category: 'Woodwork', price: 36.95 },
+  { id: 19, name: 'Rustic Wooden Shelf', category: 'Woodwork', price: 119.99 },
+  { id: 20, name: 'Maple Cutting Board', category: 'Woodwork', price: 54.50 },
+
+  { id: 21, name: 'Lavender Soy Candle', category: 'Candles', price: 18.99 },
+  { id: 22, name: 'Vanilla Spice Candle', category: 'Candles', price: 21.50 },
+  { id: 23, name: 'Citrus Breeze Candle', category: 'Candles', price: 19.95 },
+  { id: 24, name: 'Sandalwood Candle', category: 'Candles', price: 24.99 },
+  { id: 25, name: 'Ocean Mist Candle', category: 'Candles', price: 22.75 },
+
+  { id: 26, name: 'Abstract Sunset Painting', category: 'Paintings', price: 124.99 },
+  { id: 27, name: 'Mountain Landscape Painting', category: 'Paintings', price: 159.95 },
+  { id: 28, name: 'Coastal Horizon Painting', category: 'Paintings', price: 139.50 },
+  { id: 29, name: 'Floral Garden Painting', category: 'Paintings', price: 114.99 },
+  { id: 30, name: 'Modern Geometric Painting', category: 'Paintings', price: 174.95 }
+];
+
 export default function Home() {
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  const categoriesSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+
+    if (selectedCategory !== 'All' && categoriesSectionRef.current) {
+      categoriesSectionRef.current.scrollIntoView({
+        behavior: 'smooth', 
+        block: 'start', 
+      });
+    }
+  }, [selectedCategory]);
+  
+    const filteredProducts = selectedCategory === 'All'
+      ? MOCK_PRODUCTS
+      : MOCK_PRODUCTS.filter(product => product.category.toLowerCase() === selectedCategory.toLowerCase());
   const featuredArtisans = [
     {
       name: 'Maria Santos',
@@ -77,7 +135,12 @@ export default function Home() {
 
   return (
     <>
-      <NavBar />
+      <NavBar 
+
+        categories={categories.map(c => c.name)} 
+        selectedCategory={selectedCategory} 
+        onSelectCategory={setSelectedCategory} 
+      />
 
       <main id="main-content" style={{ backgroundColor: colors.background, minHeight: '100vh' }}>
 
@@ -204,31 +267,88 @@ export default function Home() {
         </section>
 
         {/* Categories */}
-        <section aria-labelledby="categories-heading" className="section-padding-warm" style={{ backgroundColor: colors.backgroundWarm }}>
+        <section ref={categoriesSectionRef} aria-labelledby="categories-heading" className="section-padding-warm" style={{ backgroundColor: colors.backgroundWarm, padding: '4rem 1rem', scrollMarginTop: '80px' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <p style={{ ...typography.label, marginBottom: '0.5rem' }}>Browse</p>
             <h2 id="categories-heading" style={{ ...typography.h2, marginBottom: '0.5rem' }}>Shop by Category</h2>
-            <p style={{ ...typography.subheading, color: colors.textMuted, marginBottom: '2rem' }}>
-              Find exactly what you are looking for
-            </p>
-            <ul className="categories-grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {categories.map((cat) => (
-                <li key={cat.name}>
-                  <Link href={`/products?category=${cat.name.toLowerCase()}`} style={{
-                    backgroundColor: colors.background, borderRadius: '12px',
-                    padding: '1.25rem', textDecoration: 'none',
-                    border: `0.5px solid ${colors.borderWarm}`,
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                  }}>
-                    <span aria-hidden="true" style={{ fontSize: '1.75rem' }}>{cat.icon}</span>
-                    <div>
-                      <p style={{ ...typography.subheading, color: colors.primary, margin: 0, fontWeight: 600, fontSize: '1rem' }}>{cat.name}</p>
-                      <p style={{ fontFamily: 'sans-serif', fontSize: '0.8rem', color: colors.secondary, margin: 0 }}>{cat.count} items</p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <p style={{ ...typography.subheading, color: colors.textMuted, margin: 0 }}>
+                Find exactly what you are looking for {selectedCategory !== 'All' && `in ${selectedCategory}`}
+              </p>
+              {selectedCategory !== 'All' && (
+                <button 
+                  onClick={() => setSelectedCategory('All')}
+                  style={{ background: 'none', border: 'none', color: colors.primary, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
+                >
+                  Clear Filter ×
+                </button >
+              )}
+            </div>
+
+            <ul className="categories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', listStyle: 'none', padding: 0, margin: '0 0 3rem 0' }}>
+              {categories.map((cat) => {
+                const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
+
+                return (
+                  <li key={cat.name}>
+                    <button
+                      onClick={() => setSelectedCategory(cat.name)}
+                      style={{
+                        backgroundColor: colors.background, 
+                        borderRadius: '12px',
+                        padding: '1.25rem', 
+                        border: isSelected 
+                          ? `2px solid ${colors.accent}` 
+                          : `0.5px solid ${colors.borderWarm}`,
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.75rem',
+                        width: '100%', 
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        boxShadow: isSelected ? '0px 4px 12px rgba(0,0,0,0.08)' : 'none',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <span aria-hidden="true" style={{ fontSize: '1.75rem' }}>{cat.icon}</span>
+                      <div>
+                        <p style={{ ...typography.subheading, color: colors.primary, margin: 0, fontWeight: 600, fontSize: '1rem' }}>
+                          {cat.name}
+                        </p>
+                        <p style={{ fontFamily: 'sans-serif', fontSize: '0.8rem', color: colors.secondary, margin: 0 }}>
+                          {cat.count} items
+                        </p>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
+
+            {/* Displaying Products Inside the Warm Block Context */}
+            <div style={{ marginTop: '2rem' }}>
+              <h3 style={{ ...typography.h3, marginBottom: '1.5rem' }}>
+                {selectedCategory === 'All' ? 'All Products' : `${selectedCategory} Products`}
+              </h3>
+              
+              {filteredProducts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3rem', backgroundColor: colors.background, borderRadius: '12px', color: colors.textMuted }}>
+                  <h4 style={{ ...typography.h3, fontSize: '1.2rem' }}>No products found in this category</h4>
+                  <p>Try browsing our other amazing craft items!</p>
+                </div>
+              ) : (
+                <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.5rem' }}>
+                  {filteredProducts.map((product) => (
+                    <div key={product.id} style={{ backgroundColor: colors.backgroundCard, border: `1px solid ${colors.borderWarm}`, padding: '1.5rem', borderRadius: '12px', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                      <h4 style={{ ...typography.h3, fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>{product.name}</h4>
+                      <p style={{ color: colors.secondary, fontSize: '0.9rem', margin: '0 0 1rem 0' }}>{product.category}</p>
+                      <p style={{ fontWeight: 'bold', color: colors.primary, margin: 0 }}>${product.price}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </section>
 

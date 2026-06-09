@@ -20,7 +20,17 @@ const typography = {
 
 const navItems = ['Shop', 'Artisans', 'About'];
 
-export default function NavBar() {
+interface NavBarProps {
+  categories?: string[];
+  selectedCategory?: string;
+  onSelectCategory?: (category: string) => void;
+}
+
+export default function NavBar({ 
+  categories = [], 
+  selectedCategory = 'All', 
+  onSelectCategory 
+}: NavBarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -39,6 +49,35 @@ export default function NavBar() {
 
         {/* Desktop nav links (hidden on mobile via CSS) */}
         <ul className="nav-links">
+          {categories.length > 0 && onSelectCategory && (
+            <li style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <select
+                id="nav-category-select"
+                value={selectedCategory}
+                onChange={(e) => onSelectCategory(e.target.value)}
+                style={{
+                  fontFamily: 'sans-serif',
+                  fontSize: '0.95rem',
+                  color: colors.secondary,
+                  backgroundColor: 'transparent',
+                  border: `1px solid ${colors.borderWarm}`,
+                  borderRadius: '6px',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+                aria-label="Filter by category"
+              >
+                <option value="All">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </li>
+          )}
+
           {navItems.map((item) => (
             <li key={item}>
               <Link
@@ -87,6 +126,37 @@ export default function NavBar() {
         className={`nav-mobile-menu${menuOpen ? ' open' : ''}`}
         aria-label="Mobile navigation"
       >
+
+        {categories.length > 0 && onSelectCategory && (
+          <div style={{ padding: '0.75rem 1.25rem', borderBottom: `0.5px solid ${colors.borderWarm}` }}>
+            <label htmlFor="mobile-category-select" style={{ fontFamily: 'sans-serif', fontSize: '0.85rem', color: colors.secondary, display: 'block', marginBottom: '0.25rem' }}>
+              Category:
+            </label>
+            <select
+              id="mobile-category-select"
+              value={selectedCategory}
+              onChange={(e) => {
+                onSelectCategory(e.target.value);
+                setMenuOpen(false); // Cierra el menú móvil al elegir
+              }}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: '6px',
+                border: `1px solid ${colors.borderWarm}`,
+                color: colors.primary,
+                fontFamily: 'sans-serif'
+              }}
+            >
+              <option value="All">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         {navItems.map((item) => (
           <Link
             key={item}
