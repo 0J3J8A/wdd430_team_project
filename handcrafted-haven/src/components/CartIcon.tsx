@@ -19,11 +19,14 @@ export default function CartIcon({ className = "", style = {} }: CartIconProps) 
       className={className}
       style={{
         position: "relative",
-        textDecoration: "none",
         display: "inline-flex",
         alignItems: "center",
         gap: "0.5rem",
-        ...style, // Allow custom styles to override
+        textDecoration: "none",
+        fontFamily: "sans-serif",
+        fontSize: "1rem",
+        color: "#A0785A",
+        ...style,
       }}
     >
       <span style={{ fontSize: "1.25rem" }}>🛒</span>
@@ -43,13 +46,12 @@ export default function CartIcon({ className = "", style = {} }: CartIconProps) 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontFamily: "sans-serif",
           }}
         >
           {itemCount > 99 ? "99+" : itemCount}
         </span>
       )}
-      <span style={{ fontFamily: "sans-serif", fontSize: "0.9rem" }}>Cart</span>
+      <span>Cart</span>
     </Link>
   );
 }

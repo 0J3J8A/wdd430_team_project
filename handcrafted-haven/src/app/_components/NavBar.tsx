@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import CartIcon from "@/components/CartIcon";
 
 const colors = {
   primary:    '#5C4033',
@@ -88,6 +89,17 @@ export default function NavBar({
               </Link>
             </li>
           ))}
+          
+          {/* Cart Icon with navbar styles */}
+          <li>
+            <CartIcon style={{
+              fontFamily: 'sans-serif',
+              fontSize: '1rem',
+              color: colors.secondary,
+              textDecoration: 'none',
+            }} />
+          </li>
+          
           <li>
             <Link
               href="/login"
@@ -137,7 +149,7 @@ export default function NavBar({
               value={selectedCategory}
               onChange={(e) => {
                 onSelectCategory(e.target.value);
-                setMenuOpen(false); // Cierra el menú móvil al elegir
+                setMenuOpen(false);
               }}
               style={{
                 width: '100%',
@@ -157,6 +169,7 @@ export default function NavBar({
             </select>
           </div>
         )}
+        
         {navItems.map((item) => (
           <Link
             key={item}
@@ -166,6 +179,15 @@ export default function NavBar({
             {item}
           </Link>
         ))}
+        
+        {/* Cart link for mobile */}
+        <Link
+          href="/cart"
+          onClick={() => setMenuOpen(false)}
+        >
+          Cart
+        </Link>
+        
         <Link
           href="/login"
           className="nav-mobile-signin"
