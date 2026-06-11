@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Playfair_Display, Source_Sans_3 } from 'next/font/google';
 import { CartProvider } from '@/contexts/CartContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 import './responsive.css';
 
@@ -45,9 +46,11 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
