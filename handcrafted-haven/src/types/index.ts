@@ -36,3 +36,46 @@ export interface Product {
   rating: number;
   reviewCount: number;
 }
+
+
+// ================================================
+// Start REVIEWS TYPES (Card 06)
+// ================================================
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  userInitials: string;
+  rating: number;
+  title: string;
+  comment: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateReviewInput {
+  productId: string;
+  rating: number;
+  title: string;
+  comment: string;
+}
+
+export interface UpdateReviewInput {
+  rating?: number;
+  title?: string;
+  comment?: string;
+}
+
+export interface ReviewsState {
+  reviews: Review[];
+  averageRating: number;
+  totalReviews: number;
+  isLoading: boolean;
+  error: string | null;
+}
+
+// ================================================
+// End REVIEWS TYPES (Card 06)
+// ================================================

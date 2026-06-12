@@ -1,10 +1,13 @@
 // src/app/product/[productId]/ProductDetailClient.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import ReviewForm from "@/components/ReviewForm";
+import ReviewsList from "@/components/ReviewsList";
+import type { Review } from "@/types";
 
 // Type definitions for product data
 type ProductImage = {
@@ -22,14 +25,6 @@ type Artisan = {
   avatarInitials: string;
 };
 
-type Review = {
-  id: string;
-  author: string;
-  rating: number;
-  comment: string;
-  date: string;
-};
-
 type Product = {
   id: string;
   name: string;
@@ -40,7 +35,6 @@ type Product = {
   stockQuantity: number;
   images: ProductImage[];
   artisan: Artisan;
-  reviews: Review[];
   averageRating: number;
   reviewCount: number;
 };
@@ -170,15 +164,37 @@ type ProductDetailClientProps = {
   productId: string;
 };
 
+// TEMPORARY - Will be replaced by real auth from Card 09
+const MOCK_USER = {
+  id: "dev-user-1",
+  name: "Test Shopper",
+  initials: "TS",
+  isLoggedIn: true, // Set to false to test logged-out state
+};
+
 export default function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const router = useRouter();
-  const { addToCart } = useCart(); // ADDED: Cart context hook
+  const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addToCartMessage, setAddToCartMessage] = useState<string | null>(null);
+
+  // Reviews state
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+
+  // Check if user is logged in (temporary - will be replaced by real auth)
+  const isLoggedIn = MOCK_USER.isLoggedIn;
+  const currentUser = isLoggedIn ? MOCK_USER : null;
 
   // Fetch product data from API
   useEffect(() => {
@@ -187,8 +203,6 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
       setError(null);
 
       try {
-        // Replace with your actual API endpoint
-        // For now, using mock data since backend may not be ready
         const response = await fetch(`/api/products/${productId}`);
 
         if (!response.ok) {
@@ -211,14 +225,126 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
     fetchProduct();
   }, [productId]);
 
-  // Handle add to cart - MODIFIED to use CartContext
+  // Fetch reviews for this product
+  const fetchReviews = useCallback(async () => {
+    setReviewsLoading(true);
+    setReviewsError(null);
+
+    try {
+      const response = await fetch(`/api/reviews?productId=${productId}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch reviews");
+      }
+
+      const data = await response.json();
+      setReviews(data.reviews);
+      setAverageRating(data.averageRating);
+      setTotalReviews(data.totalReviews);
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      setReviewsError(err instanceof Error ? err.message : "Failed to load reviews");
+    } finally {
+      setReviewsLoading(false);
+    }
+  }, [productId]);
+
+  // Load reviews when component mounts or productId changes
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  // Handle review submission
+  const handleSubmitReview = async (data: {
+    rating: number;
+    title: string;
+    comment: string;
+    reviewId?: string;
+  }) => {
+    if (!currentUser) {
+      alert("Please log in to submit a review");
+      return;
+    }
+
+    const url = data.reviewId
+      ? `/api/reviews/${data.reviewId}`
+      : "/api/reviews";
+    
+    const method = data.reviewId ? "PUT" : "POST";
+
+    const body = {
+      productId,
+      rating: data.rating,
+      title: data.title,
+      comment: data.comment,
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userInitials: currentUser.initials,
+    };
+
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to save review");
+    }
+
+    // Refresh reviews list
+    await fetchReviews();
+    
+    // Show success message
+    setSubmitSuccess(data.reviewId ? "Review updated successfully!" : "Review submitted successfully!");
+    setTimeout(() => setSubmitSuccess(null), 3000);
+    
+    // Reset form
+    setShowReviewForm(false);
+    setEditingReview(null);
+  };
+
+  // Handle delete review
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!currentUser) return;
+
+    const response = await fetch(`/api/reviews/${reviewId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to delete review");
+    }
+
+    // Refresh reviews list
+    await fetchReviews();
+    
+    // Show success message
+    setSubmitSuccess("Review deleted successfully!");
+    setTimeout(() => setSubmitSuccess(null), 3000);
+  };
+
+  // Handle edit review
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setShowReviewForm(true);
+  };
+
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditingReview(null);
+    setShowReviewForm(false);
+  };
+
+  // Handle add to cart
   const handleAddToCart = () => {
     if (!product) return;
 
     setAddingToCart(true);
     setAddToCartMessage(null);
 
-    // Create cart item from product data
     const cartItem = {
       id: product.id,
       name: product.name,
@@ -229,7 +355,6 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
       artisanName: product.artisan.name,
     };
 
-    // Add to cart using context
     addToCart(cartItem, 1);
     
     setAddToCartMessage("Added to cart successfully!");
@@ -308,6 +433,25 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
         }}>
           {addToCartMessage}
+        </div>
+      )}
+
+      {/* Review success notification */}
+      {submitSuccess && (
+        <div style={{
+          position: "fixed",
+          top: "80px",
+          right: "20px",
+          backgroundColor: "#4A6741",
+          color: "#FAF7F4",
+          padding: "1rem 1.5rem",
+          borderRadius: "8px",
+          zIndex: 1000,
+          fontFamily: "sans-serif",
+          fontSize: "0.9rem",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        }}>
+          {submitSuccess}
         </div>
       )}
 
@@ -415,7 +559,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
               gap: "0.5rem",
               marginBottom: "1rem",
             }}>
-              {renderStars(product.averageRating)}
+              {renderStars(averageRating || product.averageRating)}
               <Link
                 href="#reviews"
                 style={{
@@ -425,7 +569,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                   textDecoration: "none",
                 }}
               >
-                ({product.reviewCount} reviews)
+                ({totalReviews || product.reviewCount} reviews)
               </Link>
             </div>
 
@@ -584,7 +728,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
           </div>
         </div>
 
-        {/* Reviews section */}
+        {/* Reviews Section - REPLACED with dynamic version */}
         <div id="reviews" style={{
           marginTop: "4rem",
           paddingTop: "2rem",
@@ -600,86 +744,117 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
             Customer Reviews
           </h2>
 
-          {product.reviews.length === 0 ? (
-            <p style={{
-              fontFamily: "sans-serif",
-              color: "#7A6055",
-              textAlign: "center",
-              padding: "2rem",
-            }}>
-              No reviews yet. Be the first to review this product!
-            </p>
-          ) : (
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-            }}>
-              {product.reviews.map((review) => (
-                <div
-                  key={review.id}
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: "12px",
-                    padding: "1.5rem",
-                    border: "0.5px solid #E0D0C0",
-                  }}
-                >
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "0.5rem",
-                  }}>
-                    <span style={{
-                      fontFamily: "sans-serif",
-                      fontWeight: 600,
-                      color: "#5C4033",
-                    }}>
-                      {review.author}
-                    </span>
-                    <span style={{
-                      fontFamily: "sans-serif",
-                      fontSize: "0.8rem",
-                      color: "#A0785A",
-                    }}>
-                      {new Date(review.date).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div style={{ marginBottom: "0.75rem" }}>
-                    {renderStars(review.rating)}
-                  </div>
-                  <p style={{
-                    fontFamily: "sans-serif",
-                    fontSize: "0.95rem",
-                    color: "#7A6055",
-                    lineHeight: 1.6,
-                    margin: 0,
-                  }}>
-                    {review.comment}
-                  </p>
-                </div>
-              ))}
+          {/* Show write review button only for logged in users */}
+          {isLoggedIn && !showReviewForm && !editingReview && (
+            <div style={{ marginBottom: "2rem" }}>
+              <button
+                onClick={() => setShowReviewForm(true)}
+                style={{
+                  backgroundColor: "#5C4033",
+                  color: "#FAF7F4",
+                  padding: "0.6rem 1.25rem",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "sans-serif",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Write a Review
+              </button>
             </div>
           )}
 
-          {/* Write a review button */}
-          <div style={{ marginTop: "2rem", textAlign: "center" }}>
-            <button
+          {/* Show login message for logged out users */}
+          {!isLoggedIn && (
+            <div
               style={{
-                backgroundColor: "transparent",
-                color: "#5C4033",
-                padding: "0.75rem 1.5rem",
-                borderRadius: "8px",
-                border: `1px solid #5C4033`,
-                cursor: "pointer",
-                fontFamily: "sans-serif",
-                fontSize: "0.9rem",
+                backgroundColor: "#EDE0D4",
+                borderRadius: "12px",
+                padding: "1rem",
+                marginBottom: "2rem",
+                textAlign: "center",
               }}
             >
-              Write a Review
-            </button>
-          </div>
+              <p
+                style={{
+                  fontFamily: "sans-serif",
+                  fontSize: "0.9rem",
+                  color: "#5C4033",
+                  margin: 0,
+                }}
+              >
+                🔐 Please log in to write a review
+              </p>
+            </div>
+          )}
+
+          {/* Review Form */}
+          {(showReviewForm || editingReview) && (
+            <ReviewForm
+              productId={productId}
+              existingReview={editingReview ? {
+                id: editingReview.id,
+                rating: editingReview.rating,
+                title: editingReview.title,
+                comment: editingReview.comment,
+              } : undefined}
+              isEditing={!!editingReview}
+              onSubmit={handleSubmitReview}
+              onCancel={handleCancelEdit}
+            />
+          )}
+
+          {/* Reviews List */}
+          <ReviewsList
+            reviews={reviews}
+            averageRating={averageRating}
+            totalReviews={totalReviews}
+            isLoading={reviewsLoading}
+            onEditReview={handleEditReview}
+            onDeleteReview={handleDeleteReview}
+            currentUserId={currentUser?.id}
+          />
+
+          {/* Error message for reviews */}
+          {reviewsError && (
+            <div
+              style={{
+                backgroundColor: "#EDE0D4",
+                borderRadius: "12px",
+                padding: "1rem",
+                marginTop: "1rem",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "sans-serif",
+                  fontSize: "0.85rem",
+                  color: "#A0785A",
+                  margin: 0,
+                }}
+              >
+                ⚠️ {reviewsError}
+              </p>
+              <button
+                onClick={() => fetchReviews()}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "#5C4033",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  border: "1px solid #5C4033",
+                  cursor: "pointer",
+                  fontFamily: "sans-serif",
+                  fontSize: "0.75rem",
+                  marginTop: "0.5rem",
+                }}
+              >
+                Try Again
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
