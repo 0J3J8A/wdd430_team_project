@@ -154,7 +154,7 @@ export default function Home() {
             Handcrafted Haven connects you directly with artisans who pour their soul into every item they create. Shop with meaning.
           </p>
           <div className="hero-cta">
-            <Link href="/products" style={{
+            <Link href="/product" style={{
               backgroundColor: colors.primary, color: colors.background,
               padding: '1rem 2.5rem', borderRadius: '8px',
               textDecoration: 'none', fontFamily: 'sans-serif', fontSize: '1rem',
