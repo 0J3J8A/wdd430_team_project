@@ -1,8 +1,7 @@
-// src/app/api/products/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
+// src/app/api/products/route.ts
+import { NextResponse } from "next/server";
 
-
-// Mock product data for all 9 products with correct images
+const art1 = "ea24b1f7-85ec-4818-83d9-35982a0de689"; //Just for check seller dashboard
 const mockProducts: Record<string, any> = {
   "1": {
     id: "1",
@@ -18,27 +17,15 @@ const mockProducts: Record<string, any> = {
       { id: "img3", url: "https://nataliawillmott.co.uk/cdn/shop/products/hand-thrown-stoneware-bowl-698593.jpg?v=1695999017", alt: "Clay bowl texture detail", isMain: false },
     ],
     artisan: {
-      id: "art1",
+      id: art1,
       name: "Maria Santos",
       location: "Oaxaca, Mexico",
       specialty: "Ceramics & Pottery",
       avatarInitials: "MS",
     },
     reviews: [
-      {
-        id: "rev1",
-        author: "Sophie L.",
-        rating: 5,
-        comment: "Absolutely beautiful bowl! You can really feel the quality and care that went into making it.",
-        date: "2025-01-15",
-      },
-      {
-        id: "rev2",
-        author: "Michael R.",
-        rating: 4,
-        comment: "Gorgeous craftsmanship. The color is exactly as shown.",
-        date: "2025-01-10",
-      },
+      { id: "rev1", author: "Sophie L.", rating: 5, comment: "Absolutely beautiful bowl! You can really feel the quality and care that went into making it.", date: "2025-01-15" },
+      { id: "rev2", author: "Michael R.", rating: 4, comment: "Gorgeous craftsmanship. The color is exactly as shown.", date: "2025-01-10" },
     ],
     averageRating: 4.5,
     reviewCount: 2,
@@ -56,20 +43,14 @@ const mockProducts: Record<string, any> = {
       { id: "img2", url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHWJZRyBJYJcAIB4ZUgUx7XgeuAY2U_-QGNw&s", alt: "Vase side view", isMain: false },
     ],
     artisan: {
-      id: "art1",
+      id: art1,
       name: "Maria Santos",
       location: "Oaxaca, Mexico",
       specialty: "Ceramics & Pottery",
       avatarInitials: "MS",
     },
     reviews: [
-      {
-        id: "rev3",
-        author: "Emma W.",
-        rating: 5,
-        comment: "Stunning vase! Looks exactly like the photos.",
-        date: "2025-02-01",
-      },
+      { id: "rev3", author: "Emma W.", rating: 5, comment: "Stunning vase! Looks exactly like the photos.", date: "2025-02-01" },
     ],
     averageRating: 5.0,
     reviewCount: 1,
@@ -88,7 +69,7 @@ const mockProducts: Record<string, any> = {
       { id: "img3", url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-hBr27N7MJ4CFlsnVRBZRhxHp1FMSi0tIPA&s", alt: "Mugs stacked", isMain: false },
     ],
     artisan: {
-      id: "art1",
+      id: art1,
       name: "Maria Santos",
       location: "Oaxaca, Mexico",
       specialty: "Ceramics & Pottery",
@@ -119,20 +100,8 @@ const mockProducts: Record<string, any> = {
       avatarInitials: "JA",
     },
     reviews: [
-      {
-        id: "rev4",
-        author: "Laura B.",
-        rating: 5,
-        comment: "These earrings are exquisite! The silver work is impeccable.",
-        date: "2025-01-20",
-      },
-      {
-        id: "rev5",
-        author: "David K.",
-        rating: 4,
-        comment: "Beautiful design. Very light and comfortable to wear.",
-        date: "2025-01-18",
-      },
+      { id: "rev4", author: "Laura B.", rating: 5, comment: "These earrings are exquisite! The silver work is impeccable.", date: "2025-01-20" },
+      { id: "rev5", author: "David K.", rating: 4, comment: "Beautiful design. Very light and comfortable to wear.", date: "2025-01-18" },
     ],
     averageRating: 4.5,
     reviewCount: 2,
@@ -181,13 +150,7 @@ const mockProducts: Record<string, any> = {
       avatarInitials: "JA",
     },
     reviews: [
-      {
-        id: "rev6",
-        author: "Sarah M.",
-        rating: 5,
-        comment: "Absolutely stunning necklace. The craftsmanship is outstanding!",
-        date: "2025-02-05",
-      },
+      { id: "rev6", author: "Sarah M.", rating: 5, comment: "Absolutely stunning necklace. The craftsmanship is outstanding!", date: "2025-02-05" },
     ],
     averageRating: 5.0,
     reviewCount: 1,
@@ -213,20 +176,8 @@ const mockProducts: Record<string, any> = {
       avatarInitials: "AT",
     },
     reviews: [
-      {
-        id: "rev7",
-        author: "Jessica P.",
-        rating: 5,
-        comment: "This wall hanging transformed my living room. So beautiful!",
-        date: "2025-01-25",
-      },
-      {
-        id: "rev8",
-        author: "Thomas R.",
-        rating: 5,
-        comment: "Incredible quality. You can see the care in every thread.",
-        date: "2025-01-22",
-      },
+      { id: "rev7", author: "Jessica P.", rating: 5, comment: "This wall hanging transformed my living room. So beautiful!", date: "2025-01-25" },
+      { id: "rev8", author: "Thomas R.", rating: 5, comment: "Incredible quality. You can see the care in every thread.", date: "2025-01-22" },
     ],
     averageRating: 5.0,
     reviewCount: 2,
@@ -274,36 +225,36 @@ const mockProducts: Record<string, any> = {
       avatarInitials: "AT",
     },
     reviews: [
-      {
-        id: "rev9",
-        author: "Olivia C.",
-        rating: 4,
-        comment: "Lovely colors and craftsmanship. Adds warmth to my dining table.",
-        date: "2025-02-10",
-      },
+      { id: "rev9", author: "Olivia C.", rating: 4, comment: "Lovely colors and craftsmanship. Adds warmth to my dining table.", date: "2025-02-10" },
     ],
     averageRating: 4.0,
     reviewCount: 1,
   },
 };
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
+export async function GET() {
 
-  // Simulate network delay for realistic testing
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  return NextResponse.json(Object.values(mockProducts));
+}
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    
+    const newId = String(Object.keys(mockProducts).length + 1);
+    
+    mockProducts[newId] = {
+      id: newId,
+      ...body,
+      currency: "USD",
+      availabilityStatus: body.stockQuantity > 0 ? "in_stock" : "out_of_stock",
+      reviews: [],
+      averageRating: 0,
+      reviewCount: 0
+    };
 
-  const product = mockProducts[id];
-
-  if (!product) {
-    return NextResponse.json(
-      { error: "Product not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ success: true, product: mockProducts[newId] }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating product in mock API:", error);
+    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
   }
-
-  return NextResponse.json(product);
 }
