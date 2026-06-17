@@ -2,7 +2,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import NavBar from '../_components/NavBar';
-import ProductsClient from './ProductsClient';
+import dynamic from 'next/dynamic';
+
+const ProductsClient = dynamic(
+  () => import('./ProductsClient'),
+  {
+    loading: () => <p>Loading products...</p>,
+  }
+);
+
 
 export const metadata: Metadata = {
   title: 'Products',
