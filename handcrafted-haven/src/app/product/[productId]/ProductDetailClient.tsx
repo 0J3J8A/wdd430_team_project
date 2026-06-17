@@ -8,6 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import type { Review } from "@/types";
+import Image from "next/image";
 
 // Type definitions for product data
 type ProductImage = {
@@ -488,15 +489,23 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
               marginBottom: "1rem",
             }}>
               {mainImage && (
-                <img
-                  src={mainImage.url}
-                  alt={mainImage.alt || product.name}
+                <div
                   style={{
+                    position: "relative",
                     width: "100%",
-                    height: "auto",
-                    display: "block",
+                    aspectRatio: "1 / 1",
                   }}
-                />
+                >
+                  <Image
+                    src={mainImage.url}
+                    alt={mainImage.alt || product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
               )}
             </div>
 
@@ -514,6 +523,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                     style={{
                       width: "80px",
                       height: "80px",
+                      position: "relative",
                       border: selectedImageIndex === index + 1
                         ? `2px solid #5C4033`
                         : `1px solid #E0D0C0`,
@@ -524,12 +534,12 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                       backgroundColor: "transparent",
                     }}
                   >
-                    <img
+                    <Image
                       src={image.url}
                       alt={image.alt || `${product.name} thumbnail`}
+                      fill
+                      sizes="100px"
                       style={{
-                        width: "100%",
-                        height: "100%",
                         objectFit: "cover",
                       }}
                     />

@@ -1,8 +1,9 @@
 'use client'
 // src/app/products/ProductsClient.tsx
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const colors = {
   primary:        '#5C4033',
@@ -48,9 +49,13 @@ function renderStars(rating: number) {
 export default function ProductsClient({ products }: { products: Product[] }) {
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const filtered = activeCategory === 'All'
-    ? products
-    : products.filter((p) => p.category === activeCategory);
+  const filtered = useMemo(() => {
+    return activeCategory === 'All'
+      ? products
+      : products.filter(
+          (p) => p.category === activeCategory
+        );
+  }, [activeCategory, products]);
 
   return (
     <>
@@ -129,7 +134,6 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                       flexDirection: 'column',
                       width: '100%',
                     }}>
-
                       {/* Image — fixed height */}
                       <div style={{
                         height: '200px',
@@ -138,11 +142,13 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                         backgroundColor: colors.backgroundWarm,
                         position: 'relative',
                       }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={product.image}
                           alt={product.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          fill
+                          loading="lazy"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          style={{ objectFit: 'cover' }}
                         />
                         <div style={{
                           position: 'absolute', top: '0.75rem', left: '0.75rem',
