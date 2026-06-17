@@ -1,5 +1,5 @@
 // src/app/api/products/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const art1 = "ea24b1f7-85ec-4818-83d9-35982a0de689"; //Just for check seller dashboard
 const mockProducts: Record<string, any> = {
@@ -233,9 +233,9 @@ const mockProducts: Record<string, any> = {
 };
 
 export async function GET() {
-
   return NextResponse.json(Object.values(mockProducts));
 }
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
